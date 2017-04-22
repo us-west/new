@@ -1,0 +1,1156 @@
+//------------------------------------------------------------Booth-----------------------------------------------------------------------
+
+package org.mit;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+
+/**
+ * Servlet implementation class BoothP
+ */
+@WebServlet("/BoothP")
+public class BoothP extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public BoothP() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		int Multiplicand = Integer.parseInt(request.getParameter("Multiplicand"));
+		int Multiplier = Integer.parseInt(request.getParameter("Multiplier"));
+		BoothP multiply = new BoothP();
+		int multiplication = multiply.Multiply(Multiplicand,Multiplier);
+		System.out.println(multiplication);
+		response.getWriter().print(multiplication);
+	}
+	
+	public int Multiply(int a,int b){
+		int len1 = 1+Integer.toBinaryString(Math.abs(a)).length();
+		int len2 = 1+Integer.toBinaryString(Math.abs(b)).length();
+		
+		int[] m1 = new int[len1]; //Multiplicand
+		int[] m2 = new int[len2]; //Multiplier	
+		int[] n1 = new int[len1];
+		
+		m1 = convert(a);
+		m2 = convert(b);
+		n1 = convert(-a);
+				
+		int z = len1+len2+1;
+		
+		int[] A = new int[z];
+		int[] S = new int[z];
+		int[] P = new int[z];
+		
+		for(int i=0;i<len1;i++){
+			A[i] = m1[i];
+			S[i] = n1[i];
+		}
+		
+        for(int i=0;i<len2;i++){
+        	P[i + len1] = m2[i];
+        }
+		
+		for(int i=0;i<len2;i++){
+			if(P[z-2]==1 && P[z-1]==0){
+				P = add(P,S);
+			}
+			else if(P[z-2]==0 && P[z-1]==1){
+				P = add(P,A);
+			}
+			P = rightShift(P);	
+		}
+		
+		int ans =Answer(P);
+		return ans;
+	}
+	
+
+	public int[] convert(int num){
+		int length = 1+Integer.toBinaryString(Math.abs(num)).length();
+		String binary = "";
+		if(num>=0){
+			binary = "0"+Integer.toBinaryString(num);
+		}
+		if(num<0){
+			int negLen = Integer.toBinaryString(num).length();
+			binary = Integer.toBinaryString(num).substring(negLen-length,negLen);
+		}
+		int[] binaryArray = new int[length];
+		binaryArray = convertToArray(binary);
+		return binaryArray;
+	}
+	
+	public int[] convertToArray(String binary){
+		String[] stringArray = binary.split("");
+		int[] binaryArray = new int[stringArray.length];
+		
+		for(int i=0;i<stringArray.length;i++){
+			binaryArray[i] = Integer.parseInt(stringArray[i]); 
+		}
+		return binaryArray;
+	}
+	
+	public int[] rightShift(int[] P){
+		for(int i=P.length-1;i>0;i--){
+			P[i] = P[i-1];
+		}
+		return P;
+	}
+	
+	public int[] add(int[] m1,int[] m2){
+		int[] sum = new int[m1.length];
+
+		int carry=0;
+		for(int i=m1.length-1;i>=0;i--){
+			sum[i] =(m1[i]+m2[i]+carry)%2;
+			carry = (m1[i]+m2[i]+carry)/2;
+		}
+		return sum;
+	}
+	
+	public int Answer(int[] P){
+		StringBuilder ans = new StringBuilder();
+		int multiplication=0;
+		if(P[0]==1){
+			for(int i=1;i<P.length-1;i++){
+				if(P[i]==1){
+					ans.append("0");
+				}
+				else{
+					ans.append("1");
+				}
+			}
+			multiplication = -(Integer.parseInt(ans.toString(), 2)+1);
+		
+		}
+		else{
+			for(int i=1;i<P.length-1;i++){
+				ans.append(P[i]);
+			}
+			multiplication = Integer.parseInt(ans.toString(),2);
+		}
+		return multiplication;
+	}
+	
+
+}
+
+
+
+
+//-------------------------------------------------------------DPP---------------------------------------------------------------------------
+
+#include <semaphore.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define N 5
+#define THINKING 0
+#define HUNGRY 1
+#define EATING 2
+#define LEFT (ph_num+4)%N
+#define RIGHT (ph_num+1)%N
+
+sem_t mutex;
+sem_t S[N];
+
+void *philosopher(void *num);
+void take_fork(int);
+void put_fork(int);
+void test(int);
+
+int state[N];
+int phil_num[N] = {0,1,2,3,4};
+
+
+int main() {
+	int i;
+	pthread_t thread_id[N];
+
+//	initialize semaphore
+	sem_init(&mutex,0,1);
+	for(i=0;i<N;i++){
+		sem_init(&S[i],0,0);
+	}
+
+	for(i=0;i<N;i++){
+		pthread_create(&thread_id[i],NULL,philosopher,&phil_num[i]);
+		printf("Philosopher %d is Thinking\n",i+1);
+	}
+
+	for(i=0;i<N;i++){
+		pthread_join(thread_id[i],NULL);
+	}
+
+	
+}
+
+void *philosopher(void *num){
+	while(1){
+		int *i = num;
+		sleep(1);
+		take_fork(*i);
+		sleep(0);
+		put_fork(*i);
+	}
+}
+
+void take_fork(int ph_num){
+	sem_wait(&mutex);	//decrement(lockes) semaphore pointed by sem
+	state[ph_num]=HUNGRY;
+	printf("Philosopher %d is Hungry\n",ph_num+1);
+	test(ph_num);
+	sem_post(&mutex);	//increment(unlocks) semaphore
+	sem_wait(&S[ph_num]);
+	sleep(1);
+
+}
+
+void test(int ph_num){
+	if(state[ph_num]==HUNGRY && state[LEFT]!=EATING && state[RIGHT]!=EATING){
+		state[ph_num] = EATING;
+		sleep(2);
+		printf("Philosopher %d takes fork %d and %d\n",ph_num+1,LEFT+1,ph_num+1);
+		printf("Philosopher %d is Eating\n",ph_num+1);
+		sem_post(&S[ph_num]);
+	}
+}
+
+void put_fork(int ph_num){
+	sem_wait(&mutex);
+	state[ph_num]=THINKING;
+	printf("Philosopher %d is putting fork %d and %d\n",ph_num+1,LEFT+1,ph_num+1);
+	printf("Philosopher %d is thinking\n",ph_num+1);
+	test(LEFT);
+	test(RIGHT);
+	sem_post(&mutex);
+}
+	
+/------------------------------------------------------------OddEvenSort---------------------------------------------------------------------------
+package org.mit;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * Servlet implementation class Sortdata
+ */
+@WebServlet("/Sortdata")
+public class Sortdata extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	public static boolean sorted=false;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public Sortdata() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		int length = Integer.parseInt(request.getParameter("length"));
+		System.out.println("length : "+length);
+		int[] array = new int[length];
+		
+		for(int i=0;i<length;i++){
+			array[i] = Integer.parseInt(request.getParameter("name"+i));
+		}
+		
+		
+		response.getWriter().print("<br>UnSorted Array : ");
+		for(int i=0;i<length;i++){
+			System.out.print(array[i]+" ");
+			response.getWriter().print(array[i]+" ");
+		}
+		System.out.println();
+		
+		try {
+			sort(array);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		response.getWriter().print("<br>Sorted Array : ");
+		for(int i=0;i<length;i++){
+			System.out.print(array[i]+" ");
+			response.getWriter().print(array[i]+" ");
+		}
+		System.out.println();
+		
+	}
+	
+	public void sort(int[] array) throws InterruptedException{
+		while(!sorted){//-------------------------------------------
+			sorted=true;
+			for(int i=1;i<array.length-1;i+=2){
+				if(array[i]>array[i+1]){
+					Runnable runnable = new myRun(i,array);
+					Thread thread = new Thread(runnable);
+					thread.run();
+					thread.join();
+				}
+			}
+			for(int i=0;i<array.length-1;i+=2){
+				Runnable runnable = new myRun(i,array);
+				Thread thread = new Thread(runnable);
+				thread.run();
+				thread.join();
+			}
+		}
+	}
+
+}
+
+class myRun implements Runnable{
+	int element;
+	int[] array;
+	
+	myRun(int element,int[] array){
+		this.element = element;
+		this.array = array;
+	}
+	
+	public void run(){
+		if(array[element]>array[element+1]){
+			int temp = array[element];
+			array[element] = array[element+1];
+			array[element+1] = temp;
+			Sortdata.sorted=false;
+		}
+	}
+}
+
+
+
+
+/---------------------------------------------------------------BinarySearch-------------------------------------------------------------------------
+<!DOCTYPE HTML>
+<html>
+	<title>Binary Search</title>
+	<head>Binary Search</head>
+	<script>
+		function binarysearch(){
+			var size = parseInt(prompt("Enter No. of Elements"));
+			var array = new Array(size);
+			var i;				
+			for(i=0;i<array.length;i++){
+				array[i] = parseInt(prompt("Enter the element"));
+			}
+
+			document.writeln("Entered Elements Are : ");
+			for(i=0;i<array.length;i++)
+				document.writeln(array[i]);
+			//QuickSort(array,0,size-1);
+			bubblesort(array)
+			document.writeln("<br><br>Sorted Elements Are : ")
+			for(i=0;i<array.length;i++)
+				document.writeln(array[i]);
+
+			var elem = parseInt(prompt("Enter the Element to Be Searched"));
+			var low = 0;
+			var high = size-1
+			var flag=0;
+			var mid
+			while(low<=high){
+				mid = parseInt((low+high)/2)
+				console.log(mid);
+				if(array[mid]==elem){
+					mid = mid+1
+					document.writeln("<br><br>Element Found at Position : 	"+mid);
+					flag=1;
+					break;
+				}
+	
+				else if(elem<array[mid]){
+					high=mid-1;
+				}
+	
+				else if(elem>mid){
+					low = mid+1;
+				}
+
+			}
+
+			if(flag==0)
+				document.writeln("<br><br>Element Not Found!!")
+
+		}
+
+		function QuickSort(array,low,high){
+			if(low<high){
+				var p = partition(array,low,high);
+				QuickSort(array,low,p-1);
+				QuickSort(array,p,high);
+		
+			}
+		}
+
+		function partition(array,low,high){
+			var pivot = array[high];
+			var i = low-1
+			var j;
+			for(j=low;j<high;j++){
+				if(array[j]<pivot){
+					i=i+1;
+					var temp = array[j];
+					array[j] = array[i];
+					array[i] = temp;
+				}
+			}
+			var temp = array[high];
+			array[high] = array[i+1];
+			array[i+1] = temp;
+			return i+1
+
+		}
+
+		function bubblesort(array){
+			var i;
+			var j;
+			for(i=0;i<array.length-1;i++){
+				for(j=0;j<array.length-1;j++){
+					if(array[j]>array[j+1]){
+						var temp = array[j];
+						array[j] = array[j+1];
+						array[j+1] = temp;
+					}
+				}
+			}
+		}
+
+	</script>
+	<body onLoad="binarysearch();">
+
+
+	</body>
+</html>
+//---------------------------------------------------------------------------------QuickSort---------------------------------------------
+
+#include <iostream>
+#include <stdio.h>
+#include <omp.h>
+using namespace std;
+
+
+int partition(int array[],int low,int high){
+	int pivot=array[high];//--------
+	int i=(low-1);
+	for(int j=low;j<high;j++){//--------------------
+		if(array[j]<pivot){
+			i++;
+			int temp=array[i];
+			array[i]=array[j];
+			array[j]=temp;
+		}
+	}
+	int temp=array[i+1];
+	array[i+1]=array[high];
+	array[high]=temp;
+	return (i+1);
+}
+
+
+void QuickSort(int array[],int low,int high){
+	if(low<high){//--------------------------------------------
+		
+	
+		int p = partition(array,low,high);	
+		#pragma omp parallel sections
+		{
+					
+			#pragma omp section
+			{
+				int i=omp_get_thread_num();
+				cout<<"\nThread in execution : "<<i;
+				QuickSort(array,low,p-1);
+			}
+			#pragma omp section
+			{
+				int j=omp_get_thread_num();
+				cout<<"\nThread in execution : "<<j;
+				QuickSort(array,p+1,high);
+			}
+		}
+	}
+}
+
+void printData(int array[],int size){
+	
+	for(int i=0;i<size;i++)
+		cout<<array[i]<<" ";
+	cout<<"\n";
+}
+
+
+int main(){
+	omp_set_nested(1);
+	omp_set_num_threads(4);
+	
+	int size; 
+	cout<<"Enter the size of array : ";
+	cin>>size;
+	int array[size];
+	cout<<"Enter the elements : \n";
+	for(int i=0;i<size;i++)
+		cin>>array[i];
+	double start = omp_get_wtime();
+	QuickSort(array,0,size-1);
+	printData(array,size);
+	double end = omp_get_wtime();
+	cout<<"Total execution time is : "<<end-start<<" seconds\n";
+
+return 0;
+}
+
+//---------------------------------------------------------------------------8Queen----------------------------------------------------------------
+import json
+n=8
+x = [10,11,12,13,14,15,16,17,18]
+global flag
+def Queen(k):
+	global flag
+	for i in range(1,n+1):
+		if(Place(k,i)==True):
+			x[k]=i
+			if(k==n):
+				if(flag==0):
+					print "Solutions Satisfying the Given Condition is as Follows:"
+				print x[1:n+1]
+				flag=1
+			else:
+				Queen(k+1)
+			 
+
+
+def Place(k,i):
+	for j in range(1,k):
+		if((x[j]==i) or (abs(x[j]-i)==abs(j-k))):	#---------------------------------------------------------
+			return False
+	return True
+data=[]
+flag=0
+with open('input.json') as f:
+	data = json.load(f)#-------------------
+
+if(data["start"]<1 or data["start"]>8):#--------------
+	print "Invalid Input in json"
+	exit()
+
+print "\nGiven condition: \nFirst queen is placed in column number", data["start"] ,".\n"#------------------
+x[1]=data["start"]
+Queen(2)
+if(flag==0):
+	print "No Satisfying solution"
+//----------------------------------------------------------------------------AndroidUI------------------------------------------------------------
+
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.harshabh.calculatortrig.MainActivity">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="144dp"
+                android:id="@+id/editText"
+                android:layout_gravity="center_horizontal"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1"
+                android:id="@+id/one"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2"
+                android:id="@+id/two"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3"
+                android:id="@+id/three"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+"
+                android:id="@+id/plus"/>
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4"
+                android:id="@+id/four"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5"
+                android:id="@+id/five"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="6"
+                android:id="@+id/six"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:id="@+id/minus"/>
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="7"
+                android:id="@+id/seven"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="8"
+                android:id="@+id/eight"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="9"
+                android:id="@+id/nine"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="X"
+                android:id="@+id/multiply"/>
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="save"
+                android:id="@+id/save"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:id="@+id/zero"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="clear"
+                android:id="@+id/clear"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="/"
+                android:id="@+id/divide"/>
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="sin()"
+                android:id="@+id/sin"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="cos()"
+                android:id="@+id/cos"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="tan()"
+                android:id="@+id/tan"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="cot()"
+                android:id="@+id/cot"/>
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="cosec()"
+                android:id="@+id/cosec"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="sec()"
+                android:id="@+id/sec"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="X^"
+                android:id="@+id/power"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="sqrt"
+                android:id="@+id/sqrt"/>
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+
+
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="recall"
+                android:id="@+id/recall"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="="
+                android:id="@+id/equ"/>
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>
+
+//------------------------------------------------------------------------AndroidJava-------------------------------------------------------------
+import android.support.annotation.IdRes;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+
+public class MainActivity extends AppCompatActivity {
+  float op1=0,op2=0,save_res;
+    String flag="";
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+
+        Button one, two, three, four, five, six, seven, eight, nine, zero, plus, minus, multiply, divide, save, recall, clear, sin,
+                cos, tan, cosec, sec, cot, equ;
+        final EditText editText;
+
+        editText = (EditText)findViewById(R.id.editText);
+        one = (Button) findViewById(R.id.one);
+        two = (Button)findViewById(R.id.two);
+        three = (Button)findViewById(R.id.three);
+        four = (Button)findViewById(R.id.four);
+        five = (Button)findViewById(R.id.five);
+        six = (Button)findViewById(R.id.six);
+        seven = (Button)findViewById(R.id.seven);
+        eight = (Button)findViewById(R.id.eight);
+        nine = (Button)findViewById(R.id.nine);
+        zero = (Button)findViewById(R.id.zero);
+        plus = (Button)findViewById(R.id.plus);
+        minus = (Button)findViewById(R.id.minus);
+        multiply = (Button)findViewById(R.id.multiply);
+        divide = (Button)findViewById(R.id.divide);
+        save = (Button)findViewById(R.id.save);
+        recall = (Button)findViewById(R.id.recall);
+        clear = (Button)findViewById(R.id.clear);
+        sin = (Button)findViewById(R.id.sin);
+        cos = (Button)findViewById(R.id.cos);
+        tan = (Button)findViewById(R.id.tan);
+        cot = (Button)findViewById(R.id.cot);
+        cosec = (Button)findViewById(R.id.cosec);
+        sec = (Button)findViewById(R.id.sec);
+        equ = (Button)findViewById(R.id.equ);
+
+        one.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.setText(editText.getText()+"1");
+            }
+        });
+
+
+        two.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.setText(editText.getText()+"2");
+
+            }
+        });
+
+        three.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.setText(editText.getText()+"3");
+
+            }
+        });
+        four.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.setText(editText.getText()+"4");
+
+            }
+        });
+        five.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.setText(editText.getText()+"5");
+
+            }
+        });
+        six.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.setText(editText.getText()+"6");
+
+            }
+        });
+        seven.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.setText("7");
+
+            }
+        });
+        eight.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.setText(editText.getText()+"8");
+
+            }
+        });
+        nine.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.setText(editText.getText()+"9");
+
+            }
+        });
+        zero.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.setText(editText.getText()+"0");
+
+            }
+        });
+        plus.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String regex = "^[0-9]\\d*(\\.\\d+)?$";
+                if (editText.getText().toString().matches(regex) ) {
+                    op1 = Float.valueOf(editText.getText().toString());
+                    editText.setText("");
+                    flag = "add";
+                } else {
+                    editText.setText("Error!!! pls clear");
+
+                }
+            }
+        });
+        minus.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                String regex = "^[0-9]\\d*(\\.\\d+)?$";
+                if (editText.getText().toString().matches(regex)) {
+                    op1 = Float.valueOf(editText.getText().toString());
+                    editText.setText("");
+                    flag = "minus";
+                } else {
+                    editText.setText("Error!!! pls clear");
+
+                }
+            }
+        });
+        multiply.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String regex = "^[0-9]\\d*(\\.\\d+)?$";
+                if (editText.getText().toString().matches(regex)) {
+                op1 = Float.valueOf(editText.getText().toString());
+                editText.setText("");
+                flag="multiply";
+            }
+                else {
+                    editText.setText("Error!!! pls clear");
+
+                }
+            }
+        });
+        divide.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String regex = "^[0-9]\\d*(\\.\\d+)?$";
+                if (editText.getText().toString().matches(regex)) {
+                op1 = Float.valueOf(editText.getText().toString());
+                editText.setText("");
+                flag="divide";
+            }
+                else {
+                    editText.setText("Error!!! pls clear");
+
+                }
+            }
+        });
+        clear.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.setText("");
+            }
+        });
+        sin.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String regex = "^[0-9]\\d*(\\.\\d+)?$";
+                if (editText.getText().toString().matches(regex)) {
+                op1 = Float.valueOf(editText.getText().toString());
+                double res = Math.sin(Math.toRadians(op1));
+                editText.setText(""+res);
+            }
+                else {
+                    editText.setText("Error!!! pls clear");
+
+                }
+            }
+        });
+        cos.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String regex = "^[0-9]\\d*(\\.\\d+)?$";
+                if (editText.getText().toString().matches(regex)) {
+                    op1 = Float.valueOf(editText.getText().toString());
+                    double res = Math.cos(Math.toRadians(op1));
+                    editText.setText(""+res);
+                }
+                else {
+                    editText.setText("Error!!! pls clear");
+
+                }
+            }
+        });
+        tan.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String regex = "^[0-9]\\d*(\\.\\d+)?$";
+                if (editText.getText().toString().matches(regex)) {
+                    op1 = Float.valueOf(editText.getText().toString());
+                    double res = Math.tan(Math.toRadians(op1));
+                    editText.setText(""+res);
+                }
+                else {
+                    editText.setText("Error!!! pls clear");
+
+                }
+            }
+        });
+        cosec.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String regex = "^[0-9]\\d*(\\.\\d+)?$";
+                if (editText.getText().toString().matches(regex)) {
+                    op1 = Float.valueOf(editText.getText().toString());
+                    double res = 1/Math.sin(Math.toRadians(op1));
+                    editText.setText(""+res);
+                }
+                else {
+                    editText.setText("Error!!! pls clear");
+
+                }
+            }
+        });
+        cot.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String regex = "^[0-9]\\d*(\\.\\d+)?$";
+                if (editText.getText().toString().matches(regex)) {
+                    op1 = Float.valueOf(editText.getText().toString());
+                    double res = 1/Math.tan(Math.toRadians(op1));
+                    editText.setText(""+res);
+                }
+                else {
+                    editText.setText("Error!!! pls clear");
+
+                }
+            }
+        });
+        sec.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String regex = "^[0-9]\\d*(\\.\\d+)?$";
+                if (editText.getText().toString().matches(regex)) {
+                    op1 = Float.valueOf(editText.getText().toString());
+                    double res = 1/Math.cos(Math.toRadians(op1));
+                    editText.setText(""+res);
+                }
+                else {
+                    editText.setText("Error!!! pls clear");
+
+                }
+            }
+        });
+        save.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String regex = "^[0-9]\\d*(\\.\\d+)?$";
+                if (editText.getText().toString().matches(regex)) {
+                save_res = Float.valueOf(editText.getText().toString());
+                editText.setText("");
+            }
+                else {
+                    editText.setText("Error!!! pls clear");
+
+                }
+            }
+        });
+        recall.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.setText(""+save_res);
+            }
+        });
+        equ.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String regex = "^[0-9]\\d*(\\.\\d+)?$";
+                if (editText.getText().toString().matches(regex)) {
+                    op2 = Float.valueOf(editText.getText().toString());
+
+                }
+                else {
+                    editText.setText("Error!!! pls clear");
+
+                }
+                double res;
+
+                switch(flag)
+                {
+                    case "add" :
+                        res = op1+op2;
+                        break;
+                    case "minus":
+                        res = op1-op2;
+                        break;
+                    case "multiply":
+                        res= op1*op2;
+                        break;
+                    case "divide":
+                        res = op1/op2;
+                        break;
+                    default:
+                        res = op2;
+                }
+                editText.setText(""+res);
+            }
+        });
+
+    }
+}
+
+
