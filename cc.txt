@@ -1,0 +1,394 @@
+//----------------------------------------------------------------s3-----------------------------------------
+
+Perform following steps on terminal before executing s3.py
+
+
+1)  sudo apt-get install python-pip
+2)  sudo pip install awscli
+3)  sudo pip install --upgrade awscli
+4)  aws configure
+
+	use AWSAccessKeyId and AWSSecretKey from the doc "rootkey.csv"(provided by ma'am, we can have our own id and key if we have an aws account)
+
+	enter the region as "us-west-2"
+	output format as "json"
+
+
+
+
+from Tkinter import *
+import os
+import subprocess
+import tkMessageBox
+
+root = Tk()
+
+root.title("AWS S3")
+
+def viewBuckets():
+	cmd = "aws s3 ls"
+	x = subprocess.check_output(cmd.split())
+	tkMessageBox.showinfo("Showing Buckets",x)
+
+
+def make():
+	top = Toplevel()
+	Label(top,text="Enter Name").pack()
+	e1 = Entry(top)
+	e1.pack()
+	Button(top,text="Create",command = lambda:makeBucket(top,e1.get())).pack()
+
+def makeBucket(top,loc):
+	cmd = "aws s3 mb s3://%s"%loc
+	x = subprocess.check_output(cmd.split())
+	top.destroy()
+	tkMessageBox.showinfo("Bucket Created",x)
+
+def remove():
+	top = Toplevel()
+	Label(top,text="Enter Name").pack()
+	e1 = Entry(top)
+	e1.pack()
+	Button(top,text="Delete",command = lambda:removeBucket(top,e1.get())).pack()
+
+def removeBucket(top,loc):
+	cmd = "aws s3 rb s3://%s"%loc
+	x = subprocess.check_output(cmd.split())
+	top.destroy()
+	tkMessageBox.showinfo("Bucket Deleted",x)
+
+def upload():
+	top = Toplevel()
+	Label(top,text="Enter Source Path").pack()
+	e1 = Entry(top)
+	e1.pack()
+	Label(top,text="Enter Destination Bucket").pack()
+	e2 = Entry(top)
+	e2.pack()
+	Button(top,text="Upload",command = lambda:uploadFile(top,e1.get(),e2.get())).pack()
+
+def uploadFile(top,src,dest):
+	cmd = "aws s3 cp %s s3://%s"%(src,dest)
+	x = subprocess.check_output(cmd.split())
+	top.destroy()
+	tkMessageBox.showinfo("File Uploaded",x)
+
+def view():
+	top = Toplevel()
+	Label(top,text="Enter Bucket Name").pack()
+	e1 = Entry(top)
+	e1.pack()
+	Button(top,text="View",command = lambda:viewContent(top,e1.get())).pack()
+
+def viewContent(top,bucket):
+	cmd ="aws s3 ls %s"%bucket
+	x = subprocess.check_output(cmd.split())
+	top.destroy()
+	tkMessageBox.showinfo("Showing Content",x)
+
+Button(root,text="View Buckets",command=viewBuckets,height=2, width=20, padx=30,pady=5).pack()
+Button(root,text="Create Bucket",command=make,height=2, width=20, padx=30,pady=5).pack()
+Button(root,text="Delete Bucket",command=remove,height=2, width=20, padx=30,pady=5).pack() 
+Button(root,text="Upload File",command=upload,height=2, width=20, padx=30,pady=5).pack()
+Button(root,text="Download File",height=2, width=20, padx=30,pady=5).pack()
+Button(root,text="View Content",command=view,height=2, width=20, padx=30,pady=5).pack()
+Button(root,text="Quit",command=root.quit,height=2, width=20, padx=30,pady=5).pack()
+
+root.mainloop()
+
+//----------------------------------------------------------------------------kvm---------------------------------------------------------
+sudo apt install cpu-checker
+To install virt-manager:
+	sudo apt-get install qemu-kvm libvirt-bin bridge-utils virt-manager
+To install virt-viewer
+	sudo apt-get install virt-viewer
+
+from Tkinter import *
+import os
+import subprocess
+import tkMessageBox
+
+
+root = Tk()
+
+Label(root,text = "Virtual Machine Name" ).grid(row=0, padx=30)
+Label(root,text = "RAM Size" ).grid(row=1, padx=30)
+Label(root,text = "Path of ISO" ).grid(row=2, padx=30)
+Label(root,text = "Name of The File to Create" ).grid(row=3, padx=30)
+Label(root,text= "VM ID to Destroy ").grid(row=5, padx=30)
+
+e1 = Entry(root)
+e2 = Entry(root)
+e3 = Entry(root)
+e4 = Entry(root)
+e5 = Entry(root)
+
+e1.grid(row=0,column=1,padx=30,pady=5)
+e2.grid(row=1,column=1,padx=30,pady=5)
+e3.grid(row=2,column=1,padx=30,pady=5)
+e4.grid(row=3,column=1,padx=30,pady=5)
+e5.grid(row=5,columnspan=4,padx=30,pady=5)
+
+def  destroyVM():
+	destroy = "virsh destroy "+e5.get()
+	x = subprocess.check_output(destroy.split())
+	tkMessageBox.showinfo("Message",x)
+
+
+def listVM():
+	list = "virsh -c qemu:///system list"
+	x = subprocess.check_output(list.split())
+	tkMessageBox.showinfo("Message",x)
+
+def createVm():
+	VmName = e1.get()
+	size = e2.get()
+	iso = e3.get()
+	FlieName = "/home/naval/VmDirectory/"+e4.get()
+
+	if VmName==" " or size==" " or iso==" " or FlieName==" ":
+		print ("Invalid Output")
+	else:
+		cmd = "virt-install -n "+VmName+" --os-type=Linux --vcpus=1 --ram="+size+" --cdrom="+iso+" --disk path="+FlieName+",bus=virtio,size=1 --graphics spice"
+		os.system(cmd)
+
+Button(root,text="Show VMs",command=listVM).grid(row=4,column=0,padx=30,pady=5)
+Button(root,text="Create",command=createVm).grid(row=4,column=1,padx=30,pady=5)
+Button(root,text="Quit" ,command=root.quit).grid(row=4,column=2,padx=30,pady=5)
+Button(root,text="Destroy",command=destroyVM).grid(row=5,column=2,padx=30,pady=5)
+
+root.mainloop()
+
+//---------------------------------------------------------------------Docker-----------------------------------------------------
+sudo apt-get remove docker docker-engine
+sudo apt-get install \
+     apt-transport-https \
+     ca-certificates \
+     curl \
+     software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo apt-key fingerprint 0EBFCD88 (Key fingerprint = 9DC8 5822 9FC7 DD38 854A  E2D8 8D81 803C 0EBF CD88)
+sudo add-apt-repository \
+    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) \
+    stable"
+sudo apt-get update
+sudo apt-get install docker-ce
+sudo docker run hello-world
+sudo docker run -it ubuntu:14.04
+lsb_release -a
+exit
+//-----------------------------------------------------------------calculator--------------------------------------------------------------
+<!DOCTYPE html>
+<html>
+	<title>Calculator</title>
+	<head></head>
+	<style>
+	.calculator{
+		position:absolute;
+		top:50px;
+		left:500px;	
+	}
+	.btn{
+	width:100%;
+	height:40px;
+	font-size:20px;
+	}
+	.box{
+		height:60px
+	}
+	</style>
+	<body>
+		<form name="calculator" class="calculator">
+			<table>
+				<tr>
+					<td colspan=4><input class="box" type="text" name="ans"> </td>
+				</tr>
+				<tr>
+					<td><input type="button" value=1 class="btn" onClick="document.calculator.ans.value+='1'"></td>
+					<td><input type="button" value=2 class="btn" onClick="document.calculator.ans.value+='2'"></td>
+					<td><input type="button" value=3 class="btn" onClick="document.calculator.ans.value+='3'"></td>
+					<td><input type="button" value=+ class="btn" onClick="document.calculator.ans.value+='+'"></td>
+				</tr>
+				<tr>
+					<td><input type="button" value=4 class="btn" onClick="document.calculator.ans.value+='4'"></td>
+					<td><input type="button" value=5 class="btn" onClick="document.calculator.ans.value+='5'"></td>
+					<td><input type="button" value=6 class="btn" onClick="document.calculator.ans.value+='6'"></td>
+					<td><input type="button" value=- class="btn" onClick="document.calculator.ans.value+='-'"></td>
+				</tr>
+				<tr>
+					<td><input type="button" value=7 class="btn" onClick="document.calculator.ans.value+='7'"></td>
+					<td><input type="button" value=8 class="btn" onClick="document.calculator.ans.value+='8'"></td>
+					<td><input type="button" value=9 class="btn" onClick="document.calculator.ans.value+='9'"></td>
+					<td><input type="button" value='*' class="btn" onClick="document.calculator.ans.value+='*'"></td>
+				</tr>
+				<tr>
+					<td><input type="button" value=. class="btn" onClick="document.calculator.ans.value+='.'"></td>
+					<td><input type="button" value=0 class="btn" onClick="document.calculator.ans.value+='0'"></td>
+					<td><input type="button" value='=' class="btn" onClick="document.calculator.ans.value=eval(document.calculator.ans.value)"></td>
+					<td><input type="button" value=sin class="btn" onClick="document.calculator.ans.value=Math.sin(eval(document.calculator.ans.value*3.14/180))"></td>
+				</tr>
+				<tr><td colspan=4><input type="reset" class="btn" value="Reset"></td></tr>
+			</table>
+		</form>
+	</body>
+</html>
+//--------------------------------------------------------------------OddEven------------------------------------------------
+
+<html>
+<head>
+	<title>Binary Search</title>
+	<script type="text/javascript">
+	
+	function oddeven()
+	{
+		var n=parseInt(prompt("Enter the size of an array : "));
+		var a=new Array(n);
+		var p=0;
+		for(var i=0;i<a.length;i++)
+		{
+			a[i]=parseInt(prompt("Enter array elements : "));
+		}
+		document.write("<br><br>");
+		document.writeln("\nArray entered is : ");
+		for(var i=0;i<a.length;i++)
+		{
+			document.writeln(a[i]);
+		}
+		oddevensort(a,n);
+		document.write("<br><br>");
+		document.writeln("Sorted array is : ");
+		for(var i=0;i<a.length;i++)
+		{
+			document.writeln(a[i]);
+		}
+	}
+		function oddevensort(a,n)
+	{
+		for(var i=0;i<n/2;i++)
+		{
+			for(var j=0;j<=n-2;j+=2)
+			{
+				if(a[j]>a[j+1])
+				{
+					var t=a[j];
+					a[j]=a[j+1];
+					a[j+1]=t;
+				}
+			}
+			for(var j=1;j<=n-2;j+=2)
+			{
+				if(a[j]>a[j+1])
+				{
+					var t=a[j];
+					a[j]=a[j+1];
+					a[j+1]=t;
+				}
+			}
+		}
+	}
+</script>
+</head>
+<body onLoad="oddeven();"></body>
+</html>
+//---------------------------------------------------------password--------------------------------------------------------
+<html>
+	<title>Password Authentication</title>
+	<h2>Password Authentication</h2>
+	
+	<style>
+		.auth{
+			position:absolute;
+			top:50px;
+			left:20px;
+			
+		}
+	
+		input{
+			width:100%;
+			padding:10px
+		}
+	</style>
+	<body>
+		
+		<form class="auth">
+			User Name<input type="text" id="user" placeholder="User Name"><br><br>
+			Password<input type="password" id="passwd" placeholder="Password"><br><br>
+			<input type="submit" value="Submit" onclick="myFunction()">
+		</form>
+	</body>
+	<script>
+		function myFunction(){
+			var user = document.getElementById("user").value;
+			var passwd = document.getElementById("passwd").value;
+			console.log(user);
+			console.log(passwd);
+
+			
+			if(user=="user1" && passwd=="pass1"){
+				window.alert("valid");
+			}
+			
+			else if(user=="user2" && passwd=="pass2"){
+				window.alert("valid");
+			}
+			else{
+				window.alert("Invalid");
+			}
+		}
+	</script>
+</html>
+//--------------------------------------------------------------registration------------------------------------
+<!DOCTYPE html>
+<html>
+	<title>Registration Form</title>
+	<head></head>
+	<style>
+		.register{
+			position:absolute;
+			top:50px;
+			left:30px;
+		}
+		input{
+			width:200%;
+			padding:8px
+		}
+	</style>
+	<h2>Registration Form</h2>
+	<body>
+		<form class="register" id="register" action="">
+			First Name <input type="text" id="firstname" placeholder="First Name"><br><br>
+			Last Name<input type="text" id="lastname" placeholder="Last Name"><br><br>
+			DOB<input type="date" id="dob" placeholder="Date Of Birth"><br><br>
+			Email<input type="email" id="email" placeholder="Email"><br><br>
+			Telephone<input type="number" id="tel" placeholder="Telephone"><br><br>
+			Address<input type="text" id="address" placeholder="Address"><br><br>
+			Postal Code<input type="number" id="postal" placeholder="Postal Code"><br><br>
+			<input type="submit" value="Submit" onclick="myFunction()">
+		</form>
+	</body>
+	
+	<script>
+		function myFunction(){
+			var firstname = document.getElementById("firstname").value;
+			var lastname = document.getElementById("lastname").value;
+			var dob = document.getElementById("dob").value;
+			var email = document.getElementById("email").value;
+			var telephone = document.getElementById("tel").value;
+			var address = document.getElementById("address").value;
+			var postal = document.getElementById("postal").value;
+			
+			
+			document.write("<h2>Resistration Successful</h2>");
+			document.write("<br>First Name : "+firstname);
+			document.write("<br>Last Name : "+lastname);
+			document.write("<br>DOB : "+dob);
+			document.write("<br>Email : "+email);
+			document.write("<br>Telephone : "+telephone);
+			document.write("<br>Address : "+address);
+			document.write("<br>Postal Code : "+postal);
+		}
+	</script>
+</html>
+	
+	
