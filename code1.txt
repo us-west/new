@@ -1,0 +1,380 @@
+///calci///
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2><marquee>This is Calculator app on CLoud Foundry</marquee></h2>
+<center>
+<h1>CALCUALTOR</h1>
+
+<element>
+	<style type="text/css">
+	#calc{height:300px;width:250px;}
+	#btn{width:99%;height:40px;font-size:20px;}
+	</style>
+</element>
+
+<form name="calc">
+	<element>
+		<table id ="calc" border=2>
+		<tr>
+			<td colspan=5>
+			<input type="text" id="btn" name = "display"
+			 onkeypress = "return event.charCode >= 48 && event.charCode <=57">
+			 
+			 </td>
+		</tr>
+		<tr>
+		<td>   <input type="button" id = "btn" value="1" 
+			onClick = "calc.display.value+='1'"></input> </td>
+		<td><input type="button" id = "btn" value="2"
+		 onClick= "calc.display.value+='2'"></td>
+		<td><input type="button" id = "btn" value="3" 
+		onClick= "calc.display.value+='3'"></td>
+		<td><input type="button" id = "btn" value="+"
+		onClick= "calc.display.value+='+'"></td>
+		</tr>
+		<tr>
+		<td>   <input type="button" id = "btn" value="4"
+		onClick= "calc.display.value+='4'"></input> </td>
+		<td><input type="button" id = "btn" value="5"
+		onClick= "calc.display.value+='5'"></td>
+		<td><input type="button" id = "btn" value="6"
+		onClick= "calc.display.value+='6'"></td>
+		<td><input type="button" id = "btn" value="-"
+		onClick= "calc.display.value+='-'"></td>			
+		</tr>
+		<tr>
+		<td>   <input type="button" id = "btn" value="7"
+		onClick= "calc.display.value+='7'"></input> </td>
+		<td><input type="button" id = "btn" value="8"
+		onClick= "calc.display.value+='8'"></td>
+		<td><input type="button" id = "btn" value="9"
+		onClick= "calc.display.value+='9'"></td>
+		<td><input type="button" id = "btn" value="*"
+		onClick= "calc.display.value+='*'"></td>			
+		</tr>
+		<tr>
+		<td>   <input type="button" id = "btn" value="C"
+		onClick= "calc.display.value=''"></input> </td>
+		<td><input type="button" id = "btn" value="0"
+		onClick= "calc.display.value+='0'"></td>
+		<td><input type="button" id = "btn" value="."
+		onClick= "calc.display.value+='.'"></td>
+		<td><input type="button" id = "btn" value="/"
+		onClick= "calc.display.value+='/'"></td>			
+		</tr>
+		<tr>
+		<td>  <input type="button" id = "btn" value="^2"
+		onClick= "calc.display.value=Math.pow(calc.display.value,2)"></input> </td>
+		<td><input type="button" id = "btn" value="√"
+		onClick= "calc.display.value=Math.sqrt(calc.display.value)"></td>
+		<td><input type="button" id = "btn" value="1\x"
+		onClick= "calc.display.value=1/(calc.display.value)"></td>
+		<td><input type="button" id = "btn" value="="
+		onClick= "calc.display.value=eval(calc.display.value)"></td>			
+		</tr>
+		
+		</table>
+	
+	
+	</element>
+
+
+</form>
+</center>
+</body>
+</html>
+
+///odd even///
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Odd Even Sort</title>
+</head>
+<body>
+
+<h1> Odd-Even Sort using CloudFoundry </h1>
+
+<form action="Sort.jsp">
+
+Enter numbers:<input name="nos" id="nos"></input>
+
+<input type="submit" value="Sort"/>
+</form>
+</body>
+</html>
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>odd-even sort</title>
+</head>
+<body>
+
+<%
+	int i,j,temp;
+	String nos = request.getParameter("nos"); //take input from html
+	String[] s = nos.split(" "); //split and store in array s
+	int[] a = new int[s.length]; //calculate number of elements and create array a accordingly
+	
+	for(i=0;i<s.length;i++)
+	{
+		a[i]=Integer.parseInt(s[i]);
+	}
+	
+	for(int k=0;k<a.length;k++)  //pass
+	{
+	 //even sort
+		  for(j=0;j<a.length-1;j++)
+		  {if(j%2==0)
+		  {
+			  if(a[j] > a[j+1])
+			  {
+				  temp=a[j];
+				  a[j]=a[j+1];
+				  a[j+1]=temp;
+			  }
+		  }
+		  }
+	  
+	 
+	 //odd sort
+		  for(j=0;j<a.length-1;j++)
+		  {
+		  if(j%2!=0)
+		  {
+			  if(a[j] > a[j+1])
+			  {
+				  temp=a[j];
+				  a[j]=a[j+1];
+				  a[j+1]=temp;
+			  }
+		  }
+		  }
+	 
+	}
+	%>
+	Sorted Array:
+	
+	<%
+	for(i=0;i<a.length;i++)
+	{
+%>
+
+	<%= a[i]%>
+	
+<%//out.println(a[i]); 
+ }
+   %>
+
+</body>
+</html>
+
+////schedule
+<!DOCTYPE html>
+<html>
+<body>
+<FORM action="result.jsp" method="post">
+Course Name: <INPUT type="text" name="title" id ="title" size="35"><BR>
+Course Time: 
+<SELECT name="day" id="day">
+<OPTION value="Sunday">Sunday</OPTION>
+<OPTION value="Monday">Monday</OPTION>
+<OPTION value="Tuesday">Tuesday</OPTION>
+<OPTION value="Wednesday">Wednesday</OPTION>
+<OPTION value="Thursday">Thursday</OPTION>
+<OPTION value="Friday">Friday</OPTION>
+<OPTION value="Saturday">Saturday</OPTION>
+</SELECT>
+
+<SELECT name="starttime" id="starttime">
+<OPTION value="8">8:00am</OPTION>
+<OPTION value="9">9:00am</OPTION>
+<OPTION value="10">10:00am</OPTION>
+<OPTION value="11">11:00am</OPTION>
+<OPTION value="12">12:00pm</OPTION>
+<OPTION value="13">1:00pm</OPTION>
+<OPTION value="14">2:00pm</OPTION>
+<OPTION value="15">3:00pm</OPTION>
+<OPTION value="16">4:00pm</OPTION>
+<OPTION value="17">5:00pm</OPTION>
+<OPTION value="18">6:00pm</OPTION>
+<OPTION value="19">7:00pm</OPTION>
+<OPTION value="20">8:00pm</OPTION>
+<OPTION value="21">9:00pm</OPTION>
+</SELECT> 
+to 
+<SELECT name="endtime" id="endtime">
+<OPTION value="9">9:00am</OPTION>
+<OPTION value="10">10:00am</OPTION>
+<OPTION value="11">11:00am</OPTION>
+<OPTION value="12">12:00pm</OPTION>
+<OPTION value="13">1:00pm</OPTION>
+<OPTION value="14">2:00pm</OPTION>
+<OPTION value="15">3:00pm</OPTION>
+<OPTION value="16">4:00pm</OPTION>
+<OPTION value="17">5:00pm</OPTION>
+<OPTION value="18">6:00pm</OPTION>
+<OPTION value="19">7:00pm</OPTION>
+<OPTION value="20">8:00pm</OPTION>
+<OPTION value="21">9:00pm</OPTION>
+<OPTION value="22">10:00pm</OPTION>
+</SELECT>
+<BR>
+<BR>
+
+</FORM>
+
+
+<button onclick="myFunction()">Add course</button>
+<BR>
+<BR>
+<table border="1">
+<TR>
+<TH align="center" valign="middle" width="100">Day</TH>
+<TH align="center" valign="middle" width="100">Course</TH>
+<TH align="center" valign="middle" width="100">Start Time</TH>
+<TH align="center" valign="middle" width="100">End Time</TH>
+</TR>
+
+<tr>
+<td id="tday1"></td>
+<td id="tcourse1"></td>
+<td id="tstart1"></td>
+<td id="tend1"></td>
+</tr>
+<tr>
+<td id="tday2"></td>
+<td id="tcourse2"></td>
+<td id="tstart2"></td>
+<td id="tend2"></td>
+</tr>
+<tr>
+<td id="tday3"></td>
+<td id="tcourse3"></td>
+<td id="tstart3"></td>
+<td id="tend3"></td>
+</tr>
+
+</table>
+
+
+<script>
+var count =0;
+function myFunction() {
+    count = count + 1 ; 
+   var x = document.getElementById("title").value;
+     var y = document.getElementById("day").value;
+     var z = document.getElementById("starttime").value;
+     var w = document.getElementById("endtime").value;
+
+if(count==1)
+{
+      
+    	document.getElementById("tday1").innerHTML = y;
+        document.getElementById("tcourse1").innerHTML = x;
+        document.getElementById("tstart1").innerHTML = z;
+        document.getElementById("tend1").innerHTML = w;
+}
+else if(count==2)
+{
+	document.getElementById("tday2").innerHTML = y;
+        document.getElementById("tcourse2").innerHTML = x;
+        document.getElementById("tstart2").innerHTML = z;
+        document.getElementById("tend2").innerHTML = w;
+}
+else
+{
+	document.getElementById("tday3").innerHTML = y;
+        document.getElementById("tcourse3").innerHTML = x;
+        document.getElementById("tstart3").innerHTML = z;
+        document.getElementById("tend3").innerHTML = w;
+}
+
+}
+</script>
+
+</body>
+</html>
+////register
+
+<html>
+<body>
+ <title>Registration Form</title>
+<h2>Registration Form</h2>
+	<form action="" >
+			<table>
+			<tr>
+				<td>First Name *:</td><td><input type="text" id="fname" /></td>
+			</tr>
+			
+			<tr>
+				<td>Last Name *	:</td><td><input type="text" id="lname" /></td>
+			
+			<tr>
+				<td>Date of Birth *:</td><td><input type="date of birth" id="dob" /></td>
+			
+			<tr>
+				<td>Email *:</td><td><input type="email" id="email" /></td>
+			
+			<tr>
+				<td>Telephone:</td><td><input type="telephone" id="tel" /></td>
+			
+			<tr>
+				<td>Address *:</td><td><input type="address" id="add" /></td>
+			
+			<tr>
+				<td>Post Code *	:</td><td><input type="postcode" id="ptc" /></td>
+			
+ 		</table>
+		
+		<button onclick="myFunction()">Submit</button>
+		
+	</form>
+ 
+
+
+ 
+<script>
+var count =0;
+function myFunction() {
+    count = count + 1 ; 
+   var fname = document.getElementById("fname").value;
+     var lname = document.getElementById("lname").value;
+     var dob = document.getElementById("dob").value;
+     var email = document.getElementById("email").value;
+	var tel = document.getElementById("tel").value;
+     var add = document.getElementById("add").value;
+     var ptc = document.getElementById("ptc").value;
+	
+	document.write("\nREGISTRATION SUCCESSFUL");
+		document.write("<br><br><br>");
+	document.write("<b>First Name: </b>"+fname);
+	document.write("<br><br>");
+	document.write("<b>Last Name: </b>"+lname);
+	document.write("<br><br>");
+	document.write("<b>Date of Birth: </b>"+dob);
+	document.write("<br><br>");
+	document.write("<b>Email: </b>"+email);
+	document.write("<br><br>");
+	document.write("<b>Telephone: </b>"+tel);
+	document.write("<br><br>");
+	document.write("<b>Address: </b>"+add);	
+	document.write("<br><br>");
+	document.write("<b>Postal Code: </b>"+ptc);
+	
+
+	}
+</script>
+</body>
+</html>
